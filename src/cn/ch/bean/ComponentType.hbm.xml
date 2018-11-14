@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 2018-10-31 9:40:59 by Hibernate Tools 3.5.0.Final -->
+<hibernate-mapping>
+    <class name="cn.ch.bean.ComponentType" table="COMPONENTTYPE">
+        <id name="type_id" type="java.lang.Integer">
+            <column name="TYPE_ID" />
+            <generator class="assigned" />
+        </id>
+        <property name="typename" type="java.lang.String">
+            <column name="TYPENAME" />
+        </property>
+    </class>
+</hibernate-mapping>

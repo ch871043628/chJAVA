@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	<!-- <aop:aspectj-autoproxy></aop:aspectj-autoproxy> <context:component-scan 
+		base-package="cn.tt.bean"></context:component-scan> -->
+
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver"></property>
+		<property name="url" value="jdbc:mysql://localhost:3306/test"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property>
+	</bean>
+
+	<bean id="sessionFactoryBean"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="configLocation">
+			<value>classpath:hibernate.cfg.xml</value>
+		</property>
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<bean id="hibernateTemplate"
+		class="org.springframework.orm.hibernate5.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactoryBean"></property>
+	</bean>
+
+	<bean id="hibernateTransactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactoryBean"></property>
+	</bean>
+
+	<tx:advice id="advice"
+		transaction-manager="hibernateTransactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut
+			expression="execution(* cn.ch.dao.*.*(..	))" id="pointcut" />
+		<aop:advisor advice-ref="advice" pointcut-ref="pointcut" />
+	</aop:config>
+
+
+	<bean id="componentDao" class="cn.ch.dao.impl.ComponentDaoImpl">
+		<property name="ht" ref="hibernateTemplate"></property>
+	</bean>
+	<bean id="componentTypeDaoImpl" class="cn.ch.dao.impl.ComponentTypeDaoImpl" autowire="byName"></bean>
+	
+	<bean id="computerDaoImpl" class="cn.ch.dao.impl.ComputerDaoImpl">
+	<property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	
+	
+	<bean id="componentService" class="service.impl.ComponentServiceImpl">
+		<property name="dao" ref="componentDao"></property>
+	</bean>
+	<bean id="componentTypeServiceImpl" class="service.impl.ComponentTypeServiceImpl" autowire="byName"></bean>
+	
+	<bean id="computerServiceImpl" class="service.impl.ComputerServiceImpl">
+	<property name="dao" ref="computerDaoImpl"></property>
+	</bean>
+	
+	
+	<bean id="componentTypeAction" class="cn.ch.action.ComponentTypeAction">
+		<property name="service" ref="componentService"></property>
+	</bean>
+	<bean id="componentAction" class="cn.ch.action.ComponentAction" autowire="byName"></bean>
+	
+	<bean id="computerAction" class="cn.ch.action.ComputerAction">
+		<property name="service" ref="computerServiceImpl"></property>
+	</bean>
+</beans>
